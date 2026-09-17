@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, Image, ScrollView } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useNavigation } from 'expo-router';
 import { Pokemon, getPokemonDetail, getPokemonDetailAxios } from '@/api/pokeapi';
-import { useNavigation } from '@react-navigation/native';
 
 const PokemonDetail: React.FC = () => {
   const { name } = useLocalSearchParams<{ name: string }>();
