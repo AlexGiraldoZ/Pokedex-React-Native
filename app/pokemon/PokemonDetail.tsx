@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, Image, ScrollView } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
-import { Pokemon, getPokemonDetail } from '@/api/pokeapi';
-import { useNavigation } from '@react-navigation/native';
+import { useLocalSearchParams, useNavigation } from 'expo-router';
+import { Pokemon, getPokemonDetail, getPokemonDetailAxios } from '@/api/pokeapi';
 
 const PokemonDetail: React.FC = () => {
   const { name } = useLocalSearchParams<{ name: string }>();
@@ -10,20 +9,21 @@ const PokemonDetail: React.FC = () => {
   const navigation = useNavigation();
 
   useEffect(() => {
-    const fetchPokemonDetail = async () => {
-      try {
-        if(name){
-            const data = await getPokemonDetail(name);
-            navigation.setOptions( { headerStyle: { backgroundColor: getTypeColor(data.types[0].type.name) } } )
-            setPokemon(data);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
     fetchPokemonDetail();
   }, [name]);
+
+
+  const fetchPokemonDetail = async () => {
+    try {
+      if(name){
+          const data = await getPokemonDetail(name);
+          navigation.setOptions( { headerStyle: { backgroundColor: getTypeColor(data.types[0].type.name) } } )
+          setPokemon(data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   if (!pokemon) {
     return (
@@ -36,40 +36,40 @@ const PokemonDetail: React.FC = () => {
 
   return (
     <ScrollView style={styles.container} bounces={false}>
-      <View style={[styles.header, { backgroundColor: getTypeColor(pokemon.types[0].type.name) }]}>
-        <Text style={styles.headerText}>{pokemon.name}</Text>
-        <Image
-          source={{ uri: pokemon.sprites.other['official-artwork'].front_default }}
-          style={styles.image}
-        />
-      </View>
-      <View style={styles.content}>
-        <View style={styles.typesContainer}>
-          {pokemon.types.map((typeInfo, index) => (
-            <View key={index} style={[styles.typeContainer, { backgroundColor: getTypeColor(typeInfo.type.name) }]}>
-              <Text  style={styles.type}>
-                {typeInfo.type.name}
-              </Text>
-            </View>
-          ))}
+        <View style={[styles.header, { backgroundColor: getTypeColor(pokemon.types[0].type.name) }]}>
+            <Text style={styles.headerText}>{pokemon?.name}</Text>
+            <Image
+                source={{ uri: pokemon?.sprites.other['official-artwork'].front_default }}
+                style={styles.image}
+            />
         </View>
-        <Text style={styles.sectionTitle}>About</Text>
-        <View style={styles.infoContainer}>
-          <Text style={styles.infoText}>Weight: {pokemon.weight / 10} kg</Text>
-          <Text style={styles.infoText}>Height: {pokemon.height / 10} m</Text>
-        </View>
-        <Text style={styles.sectionTitle}>Base Stats</Text>
-        {pokemon.stats.map((stat, index) => (
-          <View key={index} style={styles.statContainer}>
-            <Text style={[styles.statName, { color: getTypeColor(pokemon.types[0].type.name) }]}>{stat.stat.name}</Text>
-            <Text style={styles.statBase}>{stat.base_stat}</Text>
-            <View style={styles.progressBarContainer}>
-              <View style={[styles.progressBar, { width: `${stat.base_stat}%`, backgroundColor: getTypeColor(pokemon.types[0].type.name) }]} />
+        <View style={styles.content}>
+            <View style={styles.typesContainer}>
+                {pokemon.types.map((typeInfo, index) => (
+                <View key={index} style={[styles.typeContainer, { backgroundColor: getTypeColor(typeInfo.type.name) }]}>
+                    <Text  style={styles.type}>
+                    {typeInfo.type.name}
+                    </Text>
+                </View>
+                ))}
             </View>
-          </View>
-        ))}
+            <Text style={styles.sectionTitle}>About</Text>
+            <View style={styles.infoContainer}>
+                <Text style={styles.infoText}>Weight: {pokemon.weight / 10} kg</Text>
+                <Text style={styles.infoText}>Height: {pokemon.height / 10} m</Text>
+            </View>
+            <Text style={styles.sectionTitle}>Base Stats</Text>
+            {pokemon.stats.map((stat, index) => (
+                <View key={index} style={styles.statContainer}>
+                    <Text style={[styles.statName, { color: getTypeColor(pokemon.types[0].type.name) }]}>{stat.stat.name}</Text>
+                    <Text style={styles.statBase}>{stat.base_stat}</Text>
+                    <View style={styles.progressBarContainer}>
+                    <View style={[styles.progressBar, { width: `${stat.base_stat}%`, backgroundColor: getTypeColor(pokemon.types[0].type.name) }]} />
+                    </View>
+                </View>
+            ))}
       </View>
-    </ScrollView>
+  </ScrollView>
   );
 };
 

@@ -1,16 +1,29 @@
-import { getPokemonImage } from '@/api/pokeapi';
-import { PokemonContext } from '@/contexts/PokemonContext';
+import React, { useState, useEffect } from 'react';
+import { getPokemonImage, Pokemon, getPokemonList } from '@/api/pokeapi';
+import { Text, View, StyleSheet, FlatList, Image } from 'react-native';
 import { Link } from 'expo-router';
-import React, { useContext } from 'react';
-import { Text, View, StyleSheet, FlatList, Image, ActivityIndicator } from 'react-native';
+
 
 export default function Home() {
-  const { pokemonList } = useContext(PokemonContext)!;
+  const [pokemonList, setPokemonList] = useState<Pokemon[]>([]);
 
-  const renderItem = ({ item }: { item: { name: string, url: string } }) => (
+  useEffect(() => {
+    fetchPokemonList();
+  }, []);
+
+  const fetchPokemonList = async () => {
+    try {
+      const data = await getPokemonList();
+      setPokemonList(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const renderItem = ({ item }: { item: Pokemon }) => (
     <View style={styles.item}>
       <View style={styles.grayBackground}/>
-      <Link href={{ pathname: '/pokemon/[name]', params: { name: item.name } }}>
+      <Link href={{ pathname: '/pokemon/PokemonDetail', params: { name: item.name } }}>
         <View style={styles.itemColumn}>
           <Image source={{ uri: `${getPokemonImage(item.url)}` }} style={styles.image} />
           <Text style={styles.text}>{item.name}</Text>
@@ -18,15 +31,6 @@ export default function Home() {
       </Link>
     </View>
   );
-
-  if (pokemonList.length == 0) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="white" />
-        <Text style={styles.loadingText}>Loading...</Text>
-      </View>
-    );
-  }
 
   return (
     <View style={styles.container}>
